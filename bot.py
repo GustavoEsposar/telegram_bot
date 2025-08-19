@@ -1,43 +1,52 @@
 from telethon import TelegramClient, events
 import requests
 import os
+from threading import Thread
+from flask import Flask
 
-api_id = int(os.getenv("API_ID"))
-api_hash = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = int(os.getenv("CHAT_ID"))
+# --- Variáveis de ambiente ---
+api_id = int(os.getenv("API_ID", "22300411"))
+api_hash = os.getenv("API_HASH", "09473f0b229ca25c55462d22c08c507f")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8308079464:AAE5aou1mzuMH40LCg5CTZ81cWss1WKAeMc")
+CHAT_ID = int(os.getenv("CHAT_ID", "5790534741"))
 CRITERIO = os.getenv("CRITERIO", "uber")
 
-# Nome da sessão do Telethon
+# --- Telethon ---
 client = TelegramClient('userbot', api_id, api_hash)
 
 def enviar_para_bot(mensagem):
-    """Envia a mensagem filtrada para o bot, que encaminha para CHAT_ID"""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    data = {
-        "chat_id": CHAT_ID,
-        "text": mensagem
-    }
+    data = {"chat_id": CHAT_ID, "text": mensagem}
     try:
-        response = requests.post(url, data=data)
-        if response.status_code != 200:
-            print("Erro ao enviar mensagem pelo bot:", response.text)
+        r = requests.post(url, data=data)
+        if r.status_code != 200:
+            print("Erro ao enviar:", r.text)
     except Exception as e:
-        print("Exceção ao enviar mensagem:", e)
+        print("Exceção ao enviar:", e)
 
 @client.on(events.NewMessage)
 async def handler(event):
     chat = await event.get_chat()
-    msg = event.message.message
+    msg = event.message.message or ""
 
-    # Apenas filtra mensagens de grupos ou canais
     if event.is_group or event.is_channel:
-        # Checa se a mensagem contém a palavra-chave
         if CRITERIO.lower() in msg.lower():
             print(f"[{chat.title}] {msg}")
-            # Encaminha para o bot
             enviar_para_bot(f"[{chat.title}] {msg}")
 
-print("Userbot rodando...")
-client.start()  # primeiro login pedirá código SMS/Telegram
-client.run_until_disconnected()
+# --- Flask (mantém vivo no Render) ---
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Bot rodando no Render 🚀"
+
+def iniciar_telethon():
+    client.start()
+    client.run_until_disconnected()
+
+if __name__ == "__main__":
+    # roda o Telethon em thread paralela
+    Thread(target=iniciar_telethon).start()
+    # inicia o servidor web (Render espera isso)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
