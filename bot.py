@@ -1,8 +1,9 @@
 from telethon import TelegramClient, events
 import requests
 import os
-from threading import Thread
+import asyncio
 from flask import Flask
+import threading
 
 # --- Variáveis de ambiente ---
 api_id = int(os.getenv("API_ID", "22300411"))
@@ -41,12 +42,16 @@ app = Flask(__name__)
 def home():
     return "Bot rodando no Render 🚀"
 
-def iniciar_telethon():
-    client.start()
-    client.run_until_disconnected()
+def iniciar_flask():
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
+
+async def iniciar_telethon():
+    await client.start()
+    print("Telethon iniciado ✅")
+    await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    # roda o Telethon em thread paralela
-    Thread(target=iniciar_telethon).start()
-    # inicia o servidor web (Render espera isso)
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
+    # roda Flask em thread paralela
+    threading.Thread(target=iniciar_flask).start()
+    # roda Telethon no loop principal
+    asyncio.run(iniciar_telethon())
