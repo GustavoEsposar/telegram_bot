@@ -6,10 +6,10 @@ from flask import Flask
 import threading
 
 # --- Variáveis de ambiente ---
-api_id = int(os.getenv("API_ID", "22300411"))
-api_hash = os.getenv("API_HASH", "09473f0b229ca25c55462d22c08c507f")
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8308079464:AAE5aou1mzuMH40LCg5CTZ81cWss1WKAeMc")
-CHAT_ID = int(os.getenv("CHAT_ID", "5790534741"))
+api_id = int(os.getenv("API_ID", ""))
+api_hash = os.getenv("API_HASH", "")
+BOT_TOKEN = os.getenv("BOT_TOKEN", ":")
+CHAT_ID = int(os.getenv("CHAT_ID", ""))
 CRITERIO = os.getenv("CRITERIO", "uber")
 
 # --- Telethon ---
