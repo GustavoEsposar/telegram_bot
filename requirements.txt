@@ -2,3 +2,4 @@ telethon
 requests
 flask
 asyncio
+python-dotenv

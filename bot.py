@@ -1,16 +1,20 @@
 from telethon import TelegramClient, events
 import requests
 import os
+from dotenv import load_dotenv
 import asyncio
 from flask import Flask
 import threading
 
+# Carrega as variáveis do .env para o ambiente
+load_dotenv()
+
 # --- Variáveis de ambiente ---
 api_id = int(os.getenv("API_ID", ""))
 api_hash = os.getenv("API_HASH", "")
-BOT_TOKEN = os.getenv("BOT_TOKEN", ":")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 CHAT_ID = int(os.getenv("CHAT_ID", ""))
-CRITERIO = os.getenv("CRITERIO", "uber")
+CRITERIO = os.getenv("CRITERIO", "")
 
 # --- Telethon ---
 client = TelegramClient('userbot', api_id, api_hash)
